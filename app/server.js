@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: './app/.env' });
 import express from 'express';
 import { MongoClient } from 'mongodb';
 
