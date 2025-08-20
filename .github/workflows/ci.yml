@@ -1,4 +1,6 @@
-name: CI
+# For more information read: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions
+
+name: TOT CICD
 on:
   push:
     branches: [ main ]
@@ -10,7 +12,6 @@ env:
 jobs:
   build-test-and-push:
     runs-on: ubuntu-latest
-    environment: web-app
     permissions:
       contents: read
 
@@ -37,7 +38,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image
-        run: docker build -t "$IMAGE" ./app
+        run: docker build -t "$IMAGE" .
 
       - name: Push image
         run: docker push "$IMAGE"
