@@ -2,19 +2,13 @@ pipeline {
   agent any
 
   environment {
-    IMAGE = "mahejose2020/webapp-jenkins:v1"
+    IMAGE = "mahejose2020/webapp-jenkins:v2"
   }
 
   stages {
     stage('Checkout') {
       steps {
         checkout scm
-      }
-    }
-
-    stage('Build') {
-      steps {
-        sh 'npm install ./app'
       }
     }
 
