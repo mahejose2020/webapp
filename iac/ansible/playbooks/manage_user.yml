@@ -1,0 +1,33 @@
+---
+- name: Manage local user and copy a file
+  hosts: local
+  gather_facts: false
+  vars:
+    new_username: "maherezo"
+    src_text_file: "../files/welcome.txt"
+    dest_file: "/home/{{ new_username }}/welcome.txt"
+
+  tasks:
+    - name: List /home contents
+      ansible.builtin.command: ls -1 /home
+      register: home_list
+      changed_when: false
+
+    - name: Show existing /home entries
+      ansible.builtin.debug:
+        var: home_list.stdout_lines
+
+    - name: Ensure the user exists (with a home directory)
+      ansible.builtin.user:
+        name: "{{ new_username }}"
+        state: present
+        create_home: true
+        shell: /bin/bash
+
+    - name: Copy welcome file into the new user's home
+      ansible.builtin.copy:
+        src: "{{ src_text_file }}"
+        dest: "{{ dest_file }}"
+        owner: "{{ new_username }}"
+        group: "{{ new_username }}"
+        mode: "0644"
