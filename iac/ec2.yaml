@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Simple EC2 instance with SG and Nginx (AL2023 via SSM)
+
+Parameters:
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to SSH
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Target VPC for the security group
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Target subnet for the instance
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64
+
+Resources:
+  DemoSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH (22) and HTTP (80)
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  DemoInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !Ref LatestAmiId
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetId
+      SecurityGroupIds: [ !Ref DemoSG ]
+      Tags:
+        - Key: Name
+          Value: josephDemoEC2
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -eux
+          dnf install -y nginx
+          systemctl enable --now nginx
+          echo "<h1>Welcome to DemoEC2 via CloudFormation</h1>" > /usr/share/nginx/html/index.html
+
+Outputs:
+  InstanceId:
+    Description: EC2 Instance ID
+    Value: !Ref DemoInstance
+  PublicIP:
+    Description: Public IP of the instance
+    Value: !GetAtt DemoInstance.PublicIp
+  PublicDNS:
+    Description: Public DNS name
+    Value: !GetAtt DemoInstance.PublicDnsName
+  SecurityGroupId:
+    Description: Security Group ID
+    Value: !Ref DemoSG
