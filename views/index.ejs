@@ -1,0 +1,60 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebApp Demo</title>
+  <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="container">
+      <h1>WebApp Demo</h1>
+      <p class="muted">Responding pod: <code><%= podName %></code></p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Add Item</h2>
+      <form action="/items" method="post" class="row">
+        <input name="item" placeholder="Enter an item..." required />
+        <button type="submit">Add</button>
+      </form>
+      <ul class="list">
+        <% if (items.length === 0) { %>
+          <li class="muted">No items yet.</li>
+        <% } else { %>
+          <% for (const it of items) { %>
+            <li><%= it.text %> <span class="muted">(@ <%= new Date(it.at).toLocaleString() %>)</span></li>
+          <% } %>
+        <% } %>
+      </ul>
+    </section>
+
+    <% if (featureImageUpload) { %>
+    <section class="card">
+      <h2>Upload Image (S3)</h2>
+      <p class="muted">Bucket: <code><%= s3Bucket || '(not set)' %></code></p>
+      <form action="/upload" method="post" enctype="multipart/form-data" class="row">
+        <input type="file" name="image" accept="image/*" required />
+        <button type="submit">Upload</button>
+      </form>
+      <p class="muted small">Uploaded files are stored privately in S3; the app returns a temporary signed URL for viewing.</p>
+    </section>
+    <% } else { %>
+    <section class="card">
+      <h2>Image Upload Disabled</h2>
+      <p class="muted">Feature flag <code>FEATURE_IMAGE_UPLOAD=false</code>. Set to <code>true</code> and restart the app to enable.</p>
+    </section>
+    <% } %>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <small>Demo app for K8s + S3 — <code>PORT</code> and S3 creds set via environment variables.</small>
+    </div>
+  </footer>
+</body>
+</html>
