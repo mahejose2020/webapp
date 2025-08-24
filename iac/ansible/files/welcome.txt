@@ -1,3 +1,0 @@
-Welcome to the DevOps ToT Ansible demo!
-This file will be copied into a new user's home directory by Ansible.
-Have a great lab session.
